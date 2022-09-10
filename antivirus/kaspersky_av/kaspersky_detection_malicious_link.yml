@@ -1,0 +1,58 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://www.hybrid-analysis.com/sample/5447cd86680bb6f6e8b6d0bc3826843c847a4d3c1e35423daffd508ad1608944?environmentId=100
+#And https://github.com/wazuh/wazuh/issues/5307
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a malicious link"
+  severity: "High"
+  description: "A malicious link is an apparently trustworthy link that, when clicked, redirects to a fake website that mimics being a legitimate official website. 
+                Once the user believes they are browsing a trusted website, they could enter personal data such as their email, passwords and even bank details.
+                Malicious links are often received in email messages asking the user to click on a link. 
+                With this method, on many occasions, instead of asking for personal data from the user, they get the victim to install some type of malware on their device."
+  solution: "Look at the sender of the message. If the source is unknown, you will need to activate the alarms. 
+            In the event that the sender is known but there is something suspicious, contact that person or trusted entity through another means. 
+            Notice the context of the message. There are signs that can make you suspicious. Check the link. If the URL starts with https://, that is a good sign. 
+            Once the link is open, if it is green and there is a lock, it means that the website most likely belongs to who it claims to be. 
+            If, on the other hand, it does not start with https:// or it does not have the padlock closed, you can access the information icon and see if the connection to that site is insecure. 
+            It is a good idea to hover over the link to see what URL it is linked to before clicking on it. It is good practice to type the address of that entity in the browser instead of clicking directly. 
+            This will ensure that you are accessing the official website. There are tools to check the reliability of a link. In case it is a business, it is possible to check its reputation.
+            Keep the operating system, applications and antivirus updated on all devices. Click on shortened links only if the source that sent it is completely trustworthy and there is no risk that it has been spoofed."
+  category: "Reconnaissance"
+  tactic: "Phishing for Information"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0043/"
+    - "https://attack.mitre.org/techniques/T1598/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "http"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Phish"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "phish"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

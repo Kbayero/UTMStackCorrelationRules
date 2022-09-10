@@ -1,0 +1,52 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Riskware"
+  severity: "Medium"
+  description: "Riskware is legitimate and illegitimate software that is vulnerable to cyber threats.
+                Risk software is often not designed to be malicious. Rather, the programs have functionalities that hackers will exploit. 
+                This type of software is not a definite risk, but it is possible.Hackers can usually infiltrate a program due to development vulnerabilities or data breaches. 
+                There is also the possibility that a program is blatantly abusing its users' privacy practices and bundles illegitimate software with a legitimate program.
+                Risky software typically leaves systems vulnerable when it comes to program and data attacks (due to program misuse or data breaches) and legal risks 
+                (due to privacy abuse or illegal attempts to modify programs). In fact, riskware is the term given to valid programs that can cause harm when used by malicious users to lock, delete, copy, or modify data and interfere with network or computer quality. 
+                It can slow down your link and affect the output of your device. It can also be used to view, delete, copy, lock or change files and data."
+  solution: "Install all software from credible sources and make sure they are updated regularly. 
+            Windows Defender also uses real-time protection, or you can also use an antivirus to limit the risk. 
+            If someone has unauthorized access to your computer, this antivirus software will alert you. 
+            Therefore, prevention is the most effective way against malicious programs."
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "regexp"
+          value: "([Rr]isk[Tt]ool)"
+        - field: "logx.kaspersky.cs1"
+          operator: "regexp"
+          value: "([Rr]isk[Ww]are)"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"    

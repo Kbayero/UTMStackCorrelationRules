@@ -1,0 +1,45 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a probable DoS attack"
+  severity: "High"
+  description: "A Denial of Service attack is an attempt to make a machine or network resource unavailable to the intended users.
+                One common method of attack involves saturating the target machine with external communications requests so that it cannot
+                respond to legitimate traffic or the machine responds so slowly that it is essentially useless."
+  solution: "To counteract the overload caused by DoS and DDoS attacks, it is essential to identify critical IP addresses as well as potential system vulnerabilities. 
+            It is also necessary to have hardware and software resources to block minor attacks. 
+            It is possible to define limits on the amount of data processed simultaneously to filter out all kinds of abnormal packets. 
+            At this point it is important to consider that proxies often allow many clients to connect from the same server IP address, which can cause them to be blocked for no apparent reason.
+            A load balancing is effective against overload is the distribution of the load on different systems. 
+            The use of load balancers allows services to be extended to multiple physical machines."
+  category: "Impact"
+  tactic: "Denial of Service (DoS)"
+  reference: 
+    - "https://attack.mitre.org/tactics/TA0040"
+    - "https://attack.mitre.org/techniques/T1499/"
+    - "https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-5149"
+    - "https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-5148"
+  frequency: 60
+  cache:
+    - oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "DoS"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

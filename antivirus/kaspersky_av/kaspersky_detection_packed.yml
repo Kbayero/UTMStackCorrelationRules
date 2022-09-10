@@ -1,0 +1,48 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Packed"
+  severity: "High"
+  description: "Packed is a runtime self-extracting executable that rolls up several kinds of malware into a single package.
+                The most common packeds are UPX, PE_Compact, PKLite and ASPack. 
+                The same malware may be detected differently when compressed using a different packed. 
+                Packeds also have the ability to make their signatures mutate over time, making malware more difficult to detect and remove."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Packed"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "packed"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

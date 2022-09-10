@@ -1,0 +1,48 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Hacker Attack"
+  severity: "High"
+  description: "We can define a cyberattack or hacker attack as all those techniques used by cybercriminals to try to obtain a normally economic benefit as a result of their actions.
+                The way in which these attacks can be carried out is very diverse and increasingly sophisticated, but the objective is always the same, either economically or to affect the reputation of the affected companies.
+                Normally, what is attempted through a cyberattack is to achieve identity theft, theft of sensitive information, a blocking of computer equipment or file encryption."
+  solution: "Protect computers, using antimalware and applying updates. Be very careful about the emails you receive. Always look for essential data, such as the name of the person or company that sent the email. 
+            Be very careful when clicking on a link or downloading files. Never insert anything into the computer before making sure it is a clean device. Scan the device for viruses.
+            Do not allow third parties to enter data on your computer. Use 2-step authentication. Set long passwords of at least 8 characters. The longer a password, the more difficult it is to crack.
+            Don't use the same password for all your computers and services. Use guest networks for external staff.
+            Don't connect personal devices to corporate networks unannounced. Be careful what you share online."
+  category: "Credential Access"
+  tactic: "Brute Force"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0006/"
+    - "https://attack.mitre.org/techniques/T1110/"
+  frequency: 60
+  cache: 
+     - oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "regexp"
+          value: "([Hh]ack[Tt]ool)"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Intrusion"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "intrusion"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

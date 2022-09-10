@@ -1,0 +1,61 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Virus"
+  severity: "High"
+  description: "A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. 
+                Viruses are named after biological viruses because they use similar techniques to spread from one place to another. 
+                Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software).
+                Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: 
+                after running the infected file, the malicious code is called and executed prior to the execution of the original application. 
+                A virus can infect any files that the current user has write permissions for.
+                Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. 
+                On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Execution"
+  tactic: "User Execution"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0002/"
+    - "https://attack.mitre.org/techniques/T1204/002/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+        - field: "logx.kaspersky.cs1"
+          operator: "not contain"
+          value: "worm"
+        - field: "logx.kaspersky.cs1"
+          operator: "not contain"
+          value: "Worm"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Virus"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "virus"
+        - field: "logx.kaspersky.cs1"
+          operator: "regexp"
+          value: "([Vv]ir[Tt]ool)"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"    

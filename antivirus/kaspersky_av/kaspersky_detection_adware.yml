@@ -1,0 +1,43 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://www.hybrid-analysis.com/sample/5447cd86680bb6f6e8b6d0bc3826843c847a4d3c1e35423daffd508ad1608944?environmentId=100
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Adware"
+  severity: "Medium"
+  description: "Adware is a short for advertising-supported software. Programs displaying advertising material fall under this category.
+    Adware applications often automatically open a new pop-up window containing advertisements in an Internet browser, or change the browsers home page.
+    Adware is frequently bundled with freeware programs, allowing their creators to cover development costs of their (usually useful) applications.
+    Adware itself is not dangerous users will only be bothered with advertisements. Its danger lies in the fact that adware may also perform tracking functions (as spyware does)"
+  solution: "Download only from trusted sources. Use security tools. Keep systems and applications up to date. Keep an eye on the plugins we install"
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+        - field: "logx.kaspersky.cs1"
+          operator: "regexp"
+          value: "([Aa]d[Ww]are)"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP" 

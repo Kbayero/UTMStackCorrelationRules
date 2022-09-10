@@ -1,0 +1,47 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Flooder"
+  severity: "High"
+  description: "Flooders are malicious programs used to overload normal Internet/Network communication and decrease overall system performance of the infected PC. 
+                If a targeted computer is a server, this malware can cause Denial of Service (DoS) attacks, Ping of Death, ICMP, HTTP overload and similar issues. 
+                Each of these problems is usually initiated by sending multiple data packets to the system and blocking the connection to it."
+  solution: "To ensure that all suspicious files that are related to the flooder are removed, we recommend opting for the automatic removal option. 
+            We recommend that you use an anti-spyware program that has been showing very good results in detecting malicious files on the system. 
+            Make sure you are using the latest versions to avoid leaving malicious traces on your computer."
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Flooder"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "flooder"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

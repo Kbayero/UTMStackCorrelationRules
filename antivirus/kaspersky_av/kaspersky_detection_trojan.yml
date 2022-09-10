@@ -1,0 +1,61 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://community.netwitness.com/t5/netwitness-discussions/help-with-cef-custom-fields/m-p/448813
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Trojan"
+  severity: "High"
+  description: "Trojans are a type of malicious software that disguises itself to hide its true intentions. 
+                However, unlike viruses, it cannot spread or infect files on its own. 
+                To infiltrate a victim's device, this category of malware relies on other means, such as drive-by downloads,
+                exploiting vulnerabilities, downloading by other malicious code, or social engineering techniques. "
+  solution: "Download and install an updated antivirus. 
+    Disconnect from the internet whether you use an ADSL modem, a network card or a Wi-Fi card. 
+    Open your internet browser and clear the cache and cookies. 
+    To keep your Internet connection as secure as possible, always use a firewall. 
+    Both software and hardware firewalls are great at controlling malicious Internet traffic 
+    and can often prevent Trojans from downloading to your computer in the first place."
+  category: "Execution"
+  tactic: "User Execution"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0002/"
+    - "https://attack.mitre.org/techniques/T1204/002/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+        - field: "logx.kaspersky.cs1"
+          operator: "not contain"
+          value: "DDoS"
+        - field: "logx.kaspersky.cs1"
+          operator: "not contain"
+          value: "Ransom"
+        - field: "logx.kaspersky.cs1"
+          operator: "not contain"
+          value: "Phish"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Trojan"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "trojan"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"

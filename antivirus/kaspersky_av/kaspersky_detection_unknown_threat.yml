@@ -1,0 +1,49 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00125.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a unknown threat"
+  severity: "High"
+  description: "A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. 
+                Viruses are named after biological viruses because they use similar techniques to spread from one place to another. 
+                Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software).
+                Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: 
+                after running the infected file, the malicious code is called and executed prior to the execution of the original application. 
+                A virus can infect any files that the current user has write permissions for.
+                Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. 
+                On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Malware"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.signatureID"
+          operator: "in"
+          value: "GNRL_EV_SUSPICIOUS_OBJECT_FOUND,GNRL_EV_VIRUS_FOUND,GNRL_EV_ATTACK_DETECTED,GNRL_EV_VIRUS_FOUND_AND_BLOCKED"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "not exist"
+          value:
+        - field: "logx.kaspersky.cs1"
+          operator: "not regexp"
+          value: "([Aa]d[Ww]are|[Bb]ackdoor|DoS|Exploit|[Ff]ooder|[Hh]ack[Tt]ool|[Ii]nstrusion|http|[Pp]hish|[Mm]alware|[Pp]acked|[Rr]ansom|[Rr]isk[Ww]are|[Tt]rojan|[Vv]irus|[Vv]ir[Tt]ool|[Ww]orm)"   
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP" 

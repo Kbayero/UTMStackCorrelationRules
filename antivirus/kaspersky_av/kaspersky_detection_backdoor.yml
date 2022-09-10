@@ -1,0 +1,47 @@
+#Based in https://support.kaspersky.com/help/KSC/13.1/KSCAPI/a00294.html
+#And https://threats.kaspersky.com/mx/threat/
+# Rule version v1.0.0
+
+- name: "Kaspersky has detected a possible Backdoor"
+  severity: "High"
+  description: "The backdoors allow the malicious user to control the infected computer, being able to send and 
+                receive files, execute or delete them, display messages, delete or steal data, restart the computer, etc. 
+                That is, you can control the computer as if you were sitting in front of it and at the controls."
+  solution: "Use a sophisticated antivirus. Download carefully as you may find potentially unwanted applications. 
+    Use a firewall, which can help prevent backdoor virus attacks. Use a password manager to help you manage your credentials. 
+    Stay on top of security updates and patches. Use multi-factor authentication to increase security."
+  category: "Execution"
+  tactic: "User Execution"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0002/"
+    - "https://attack.mitre.org/techniques/T1204/002/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.kaspersky.cs1Label"
+          operator: "in"
+          value: "VirusName,Virus Name"
+      oneOf:
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "Backdoor"
+        - field: "logx.kaspersky.cs1"
+          operator: "contain"
+          value: "backdoor"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.kaspersky.proto"
+          alias: "Protocol"
+        - field: "logx.kaspersky.suser"
+          alias: "SourceUser"
+        - field: "logx.kaspersky.ahost"
+          alias: "SourceHost"
+        - field: "logx.kaspersky.src_ip"
+          alias: "SourceIP"
+        - field: "logx.kaspersky.duser"
+          alias: "DestinationUser"
+        - field: "logx.kaspersky.dhost"
+          alias: "DestinationHost"
+        - field: "logx.kaspersky.dest_ip"
+          alias: "DestinationIP"
