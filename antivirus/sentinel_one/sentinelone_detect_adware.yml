@@ -1,0 +1,36 @@
+# Based https://docs.cyderes.cloud/parser-knowledge-base/sentinel_edr/#parser-details
+# And https://xsoar.pan.dev/docs/reference/integrations/sentinel-one-v2
+# And https://www.sentinelone.com/blog/feature-spotlight-introducing-the-new-threat-center/
+# Rule version v1.0.0
+
+- name: "Sentinelone possible detection of a adware"
+  severity: "High"
+  description: "Adware is a short for advertising-supported software. Programs displaying advertising material fall under this category.
+    Adware applications often automatically open a new pop-up window containing advertisements in an Internet browser, or change the browsers home page.
+    Adware is frequently bundled with freeware programs, allowing their creators to cover development costs of their (usually useful) applications.
+    Adware itself is not dangerous users will only be bothered with advertisements. Its danger lies in the fact that adware may also perform tracking functions (as spyware does)"
+  solution: "Download only from trusted sources. Use security tools. Keep systems and applications up to date. Keep an eye on the plugins we install"
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "::"
+          value: "Adware"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.sentinel_one.proto"
+          alias: "Protocol"
+        - field: "logx.sentinel_one.suser"
+          alias: "SourceUser"
+        - field: "logx.sentinel_one.src_ip"
+          alias: "SourceIP"
+        - field: "logx.sentinel_one.duser"
+          alias: "DestinationUser"
+        - field: "logx.sentinel_one.dest_ip"
+          alias: "DestinationIP"

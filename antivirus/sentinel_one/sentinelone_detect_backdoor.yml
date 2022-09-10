@@ -1,0 +1,37 @@
+# Based https://docs.cyderes.cloud/parser-knowledge-base/sentinel_edr/#parser-details
+# And https://xsoar.pan.dev/docs/reference/integrations/sentinel-one-v2
+# And https://www.sentinelone.com/blog/feature-spotlight-introducing-the-new-threat-center/
+# Rule version v1.0.0
+
+- name: "Sentinelone possible detection of a backdoor"
+  severity: "High"
+  description: "The backdoors allow the malicious user to control the infected computer, being able to send and 
+                receive files, execute or delete them, display messages, delete or steal data, restart the computer, etc. 
+                That is, you can control the computer as if you were sitting in front of it and at the controls."
+  solution: "Use a sophisticated antivirus. Download carefully as you may find potentially unwanted applications. 
+    Use a firewall, which can help prevent backdoor virus attacks. Use a password manager to help you manage your credentials. 
+    Stay on top of security updates and patches. Use multi-factor authentication to increase security."
+  category: "Execution"
+  tactic: "User Execution"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0002/"
+    - "https://attack.mitre.org/techniques/T1204/002/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "::"
+          value: "Backdoor"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.sentinel_one.proto"
+          alias: "Protocol"
+        - field: "logx.sentinel_one.suser"
+          alias: "SourceUser"
+        - field: "logx.sentinel_one.src_ip"
+          alias: "SourceIP"
+        - field: "logx.sentinel_one.duser"
+          alias: "DestinationUser"
+        - field: "logx.sentinel_one.dest_ip"
+          alias: "DestinationIP"

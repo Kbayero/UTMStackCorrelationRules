@@ -1,0 +1,40 @@
+# Based https://docs.cyderes.cloud/parser-knowledge-base/sentinel_edr/#parser-details
+# And https://xsoar.pan.dev/docs/reference/integrations/sentinel-one-v2
+# And https://www.sentinelone.com/blog/feature-spotlight-introducing-the-new-threat-center/
+# Rule version v1.0.0
+
+- name: "Sentinelone possible detection of a worm"
+  severity: "High"
+  description: "A computer worm is a program containing malicious code that attacks host computers and spreads via network. 
+                The basic difference between a virus and a worm is that worms have the ability to propagate by themselves; they are not dependant on host files (or boot sectors). 
+                Worms spread to email addresses in your contact list or exploit security vulnerabilities in network applications.
+                Worms are therefore much more viable than computer viruses. Due to the wide availability of the Internet, they can spread across the globe within hours or even minutes after their release. 
+                This ability to replicate independently and rapidly makes them more dangerous than other types of malware.
+                A worm activated in a system can cause a number of inconveniences: It can delete files, degrade system performance, or even deactivate programs. The nature of a computer worm qualifies it as a means of transport for other types of infiltrations."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Impact"
+  tactic: "Data Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0040/"
+    - "https://attack.mitre.org/techniques/T1565/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "::"
+          value: "Worm"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.sentinel_one.proto"
+          alias: "Protocol"
+        - field: "logx.sentinel_one.suser"
+          alias: "SourceUser"
+        - field: "logx.sentinel_one.src_ip"
+          alias: "SourceIP"
+        - field: "logx.sentinel_one.duser"
+          alias: "DestinationUser"
+        - field: "logx.sentinel_one.dest_ip"
+          alias: "DestinationIP"

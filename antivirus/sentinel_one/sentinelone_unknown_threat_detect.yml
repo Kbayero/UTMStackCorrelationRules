@@ -1,0 +1,48 @@
+# Based https://docs.cyderes.cloud/parser-knowledge-base/sentinel_edr/#parser-details
+# And https://xsoar.pan.dev/docs/reference/integrations/sentinel-one-v2
+# And https://www.sentinelone.com/blog/feature-spotlight-introducing-the-new-threat-center/
+# Rule version v1.0.0
+
+- name: "Sentinelone unknown threat detect"
+  severity: "High"
+  description: "A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. 
+                Viruses are named after biological viruses because they use similar techniques to spread from one place to another. 
+                Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software).
+                Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: 
+                after running the infected file, the malicious code is called and executed prior to the execution of the original application. 
+                A virus can infect any files that the current user has write permissions for.
+                Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. 
+                On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Malware"
+  frequency: 60
+  cache: 
+    - oneOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "not in"
+          value: "Adware,Backdoor,Exploit,Generic.Heuristic,Hacktool,Malware,PUA,Trojan,Worm,Ransomware,adware,backdoor,exploit,hacktool,malware,potentially unwanted application,trojan,worm,ransomare"
+      allOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "not exist"
+          value:
+        - field: "logx.sentinel_one.eventID"
+          operator: "in"
+          value: "19,2001,2004,47,4002,4008"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.sentinel_one.proto"
+          alias: "Protocol"
+        - field: "logx.sentinel_one.suser"
+          alias: "SourceUser"
+        - field: "logx.sentinel_one.src_ip"
+          alias: "SourceIP"
+        - field: "logx.sentinel_one.duser"
+          alias: "DestinationUser"
+        - field: "logx.sentinel_one.dest_ip"
+          alias: "DestinationIP"
+        
+    
+    

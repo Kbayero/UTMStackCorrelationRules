@@ -1,0 +1,39 @@
+# Based https://docs.cyderes.cloud/parser-knowledge-base/sentinel_edr/#parser-details
+# And https://xsoar.pan.dev/docs/reference/integrations/sentinel-one-v2
+# And https://www.sentinelone.com/blog/feature-spotlight-introducing-the-new-threat-center/
+# Rule version v1.0.0
+
+- name: "Sentinelone detection of possible hacker attack"
+  severity: "High"
+  description: "We can define a cyberattack or hacker attack as all those techniques used by cybercriminals to try to obtain a normally economic benefit as a result of their actions.
+                The way in which these attacks can be carried out is very diverse and increasingly sophisticated, but the objective is always the same, either economically or to affect the reputation of the affected companies.
+                Normally, what is attempted through a cyberattack is to achieve identity theft, theft of sensitive information, a blocking of computer equipment or file encryption."
+  solution: "Protect computers, using antimalware and applying updates. Be very careful about the emails you receive. Always look for essential data, such as the name of the person or company that sent the email. 
+            Be very careful when clicking on a link or downloading files. Never insert anything into the computer before making sure it is a clean device. Scan the device for viruses.
+            Do not allow third parties to enter data on your computer. Use 2-step authentication. Set long passwords of at least 8 characters. The longer a password, the more difficult it is to crack.
+            Don't use the same password for all your computers and services. Use guest networks for external staff.
+            Don't connect personal devices to corporate networks unannounced. Be careful what you share online."
+  category: "Credential Access"
+  tactic: "Brute Force"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0006/"
+    - "https://attack.mitre.org/techniques/T1110/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.sentinel_one.threatClassification"
+          operator: "::"
+          value: "Hacktool"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.sentinel_one.proto"
+          alias: "Protocol"
+        - field: "logx.sentinel_one.suser"
+          alias: "SourceUser"
+        - field: "logx.sentinel_one.src_ip"
+          alias: "SourceIP"
+        - field: "logx.sentinel_one.duser"
+          alias: "DestinationUser"
+        - field: "logx.sentinel_one.dest_ip"
+          alias: "DestinationIP"
