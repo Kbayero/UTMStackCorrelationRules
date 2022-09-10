@@ -1,0 +1,36 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable Fingerprinting attempt detected by palo Alto Cortex XDR"
+  severity: "High"
+  description: "This technique consists of collecting information directly from the computer systems 
+                of a person or company to learn more about their behavior and configuration."
+  solution: "Fingerprint ingress protection for attacks can be achieved primarily by limiting what is traffic from a defensive system. 
+      All of this should include ICMP outgoing timestamp blocking, address mask blocking, message control traffic, and ICMP echo response blocking.
+      You can also make use of a security tool that can be alert to any potential fingerprints that might match another machine that has a Fingerprinting setup. 
+      TCP blocking or restriction can also be applied for IP/fingerprinting to provide protection against vulnerability scanners seeking to study each of the target machines."
+  category: "Reconnaissance"
+  tactic: "Gather Victim Information"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0043/"
+    - "https://attack.mitre.org/techniques/T1589/"
+    - "https://attack.mitre.org/techniques/T1591/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "in"
+          value: "CYSTATUS_FINGERPRINTING_ATTEMPT,CYSTATUS_FONT_PROT_DUQU"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

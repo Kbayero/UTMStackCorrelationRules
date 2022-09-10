@@ -1,0 +1,46 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Palo Alto Cortex XDR has detected an unknown threat and has quarantined or blocked it"
+  severity: "High"
+  description: "A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. 
+                Viruses are named after biological viruses because they use similar techniques to spread from one place to another. 
+                Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software).
+                Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: 
+                after running the infected file, the malicious code is called and executed prior to the execution of the original application. 
+                A virus can infect any files that the current user has write permissions for.
+                Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. 
+                On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors."
+  solution: "Install anti-virus/malware software to keep your PC virus free. Keep your antivirus 
+             software up to date. Run regularly scheduled scans with your antivirus software. 
+             Keep your operating system up to date. Protect your red."
+  category: "Malware"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "in"
+          value: "CYSTATUS_DLLPROT_CURRENT_WORKING_DIRECTORY,CYSTATUS_JAVA_FILE,CYSTATUS_JAVA_PROC,CYSTATUS_JAVA_REG,CYSTATUS_UNAUTHORIZED_CALL_TO_SYSTEM_SERVICE,CYSTATUS_UNALLOWED_CODE_SEGMENT,CYSTATUS_UASLR_CRITICAL,CYSTATUS_SUSPICIOUS_APC,CYSTATUS_SUSPENDED_PROCESS_BLOCKED,CYSTATUS_PROCESS_CREATION_VIOLATION,CYSTATUS_NO_MEMORY,CYSTATUS_MACOS_G02_BLOCK_ALL,CYSTATUS_MACOS_G02_SIGNER_NAME_MISMATCH,CYSTATUS_CYVERA_PREVENTION,CYSTATUS_DANGEROUS_SYSTEM_SERVICE_CALLED,CYSTATUS_DEP_VIOLATION,CYSTATUS_DEP_VIOLATION_UNALLOCATED,CYSTATUS_DEVICE_BLOCKED,CYSTATUS_FORBIDDEN_MEDIA,CYSTATUS_FORBIDDEN_OPTICAL_MEDIA,CYSTATUS_FORBIDDEN_REMOTE_MEDIA,CYSTATUS_FORBIDDEN_REMOVABLE_MEDIA,CYSTATUS_GUARD_PAGE_VIOLATION,CYSTATUS_ILLEGAL_EXECUTABLE,CYSTATUS_ILLEGAL_UNSIGNED_EXECUTABLE,CYSTATUS_SEH_INF_CRITICAL,CYSTATUS_SEH_CRITICAL,CYSTATUS_DEP_SEH_VIOLATION,CYSTATUS_DEP_SEH_INF_VIOLATION,CYSTATUS_HEAP_CORRUPTION,CYSTATUS_FILE_DELETION_BOOT_DONE,CYSTATUS_DOTNET_CRITICAL,CYSTATUS_JIT_EXCEPTION,CYSTATUS_QUARANTINE_SUCCEEDED,CYSTATUS_QUARANTINE_FAILED,CYSTATUS_STACK_OVERFLOW,CYSTATUS_FILE_DELETION_SUCCEEDED,CYSTATUS_FILE_DELETION_FAILED"
+      oneOf:
+        - field: "logx.paloalto_cortex_xdr.blocked"
+          operator: "=="
+          value: "1"
+        - field: "logx.paloalto_cortex_xdr.quarantine"
+          operator: "=="
+          value: "1"
+        - field: "logx.paloalto_cortex_xdr.preventionMode"
+          operator: "=="
+          value: "block"      
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

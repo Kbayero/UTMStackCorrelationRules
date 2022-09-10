@@ -1,0 +1,36 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable cookie poisoning attempt detected by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "Cookie poisoning is a technique known to have the objective of impersonating and violating privacy by manipulating session cookies, 
+                which maintain the identity of the client. By forging these cookies, an attacker can impersonate a valid client,
+                thereby obtaining information and taking actions on behalf of the victim."
+  solution: "Clear or delete cookies. Modify your browser settings so that you have control over the information that cookies track. Share in moderation. 
+      As in almost everything that happens on the Internet and in everyday life, common sense is our best ally. 
+      Thus, it is advisable not to enter personal data on sites where cookies can store them and we must always remember not to leave any account or session open. 
+      Having a good security solution installed is the last defense against any attack and will allow us to have control. of our privacy."
+  category: "Credential Access"
+  tactic: "Steal Web Session Cookie"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0006/"
+    - "https://attack.mitre.org/techniques/T1539/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "=="
+          value: "CYSTATUS_GS_COOKIE_CORRUPTED_COOKIE"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

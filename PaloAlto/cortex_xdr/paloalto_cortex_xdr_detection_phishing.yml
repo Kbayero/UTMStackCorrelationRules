@@ -1,0 +1,45 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable phishing attack detected by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "Phishing is the crime of tricking people into sharing sensitive information like passwords and credit card numbers."
+  solution: "You can try to minimize the damage by logging into your account, if possible, to kick the hacker out of your account: 
+      change your password and check if the attacker has changed any of your account settings to make sure you still have access to your account in case that you change the password. 
+      Check, for example, if you have indicated a secondary password recovery address, email forwarding to another address, etc."
+  category: "Reconnaissance"
+  tactic: "Phishing for Information"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0043/"
+    - "https://attack.mitre.org/techniques/T1598/"
+  frequency: 60
+  cache: 
+    - oneOf:
+        - field: "logx.paloalto_cortex_xdr.verdict"
+          operator: "in"
+          value: "4,Phishing"
+        - field: "logx.paloalto_cortex_xdr.act_msg"
+          operator: "regexp"
+          value: "([Pp]hish)"
+        - field: "logx.paloalto_cortex_xdr.cat"
+          operator: "regexp"
+          value: "([Pp]hish)"
+        - field: "logx.paloalto_cortex_xdr.msg"
+          operator: "regexp"
+          value: "([Pp]hish)"
+        - field: "logx.paloalto_cortex_xdr.profile"
+          operator: "regexp"
+          value: "([Pp]hish)"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

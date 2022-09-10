@@ -1,0 +1,33 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable token theft detected by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "Adversaries may modify access tokens to operate under a different user or system security context to perform actions and bypass access controls"
+  solution: "Limit permissions so that users and user groups cannot create tokens. This setting should be defined for the local system account only. 
+      GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Create a token object.
+      Also define who can create a process level token to only the local and network service through GPO: Computer Configuration > [Policies] > Windows Settings > Security Settings > Local Policies > User Rights Assignment: Replace a process level token"
+  category: "Privilege Escalation"
+  tactic: "Access Token Manipulation"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0004/"
+    - "https://attack.mitre.org/techniques/T1134/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "in"
+          value: "TOKEN_THEFT_THREAD_STARTED,TOKEN_THEFT_THREAD_INJECTED,TOKEN_THEFT_THREAD_CREATED,TOKEN_THEFT_REGISTRY_OPERATION,TOKEN_THEFT_PROCESS_CREATED,TOKEN_THEFT_FILE_OPERATION"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

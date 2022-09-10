@@ -1,0 +1,51 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Possible brute force attack attempt prevented by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "Adversaries can use brute force techniques to gain access to accounts when passwords 
+                are unknown or when password hashes are obtained. Without knowledge of the password for an account or set of accounts, 
+                an adversary can systematically guess the password using a repetitive or iterative mechanism. Brute force passwords can 
+                take place through interaction with a service that will verify the validity of those credentials or offline with previously acquired credential data, such as password hashes."
+  solution: "Set account lockout policies after a certain number of failed login attempts to prevent passwords from being guessed. 
+      Too strict a policy can create a denial of service condition and render environments unusable, with all brute-forced accounts locked out. 
+      Use multi-factor authentication. Whenever possible, also enable multi-factor authentication on external services. Please refer to NIST guidelines when creating password policies. 
+      Proactively restore accounts known to be part of the breached credentials, either immediately or after detecting brute force attempts. Potential false positives: 
+      Automated processes that attempt to authenticate using expired credentials and unlimited retries can lead to false positives."
+  category: "Credential Access"
+  tactic: "Brute Force"
+  reference: 
+    - "https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-admin/threat-prevention/prevent-brute-force-attacks#id5bfba941-c87b-4755-b42b-e666a3b3a0a4"
+    - "https://attack.mitre.org/tactics/TA0006/"
+    - "https://attack.mitre.org/techniques/T1110/"
+  frequency: 60
+  cache: 
+    - oneOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "=="
+          value: "CYSTATUS_LINUX_BRUTEFORCE_PREVENTED"
+        - field: "logx.paloalto_cortex_xdr.act_msg"
+          operator: "regexp"
+          value: "(BRUTEFORCE|[Bb]rute(\\s)?[Ff]orce)"
+        - field: "logx.paloalto_cortex_xdr.cat"
+          operator: "regexp"
+          value: "(BRUTEFORCE|[Bb]rute(\\s)?[Ff]orce)"
+        - field: "logx.paloalto_cortex_xdr.msg"
+          operator: "regexp"
+          value: "(BRUTEFORCE|[Bb]rute(\\s)?[Ff]orce)"
+        - field: "logx.paloalto_cortex_xdr.profile"
+          operator: "regexp"
+          value: "(BRUTEFORCE|[Bb]rute(\\s)?[Ff]orce)"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

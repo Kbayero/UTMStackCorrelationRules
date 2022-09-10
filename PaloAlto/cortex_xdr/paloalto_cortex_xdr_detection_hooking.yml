@@ -1,0 +1,34 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable hooking attack detected by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "Adversaries may utilize hooking to hide the presence of artifacts associated with their behaviors to evade detection. 
+                Hooking can be used to modify return values or data structures of system APIs and function calls."
+  solution: "Hooking can be difficult to detect, and therefore enterprises may be better served focusing on detection at other stages of adversarial behavior.
+      Enable remote attestation capabilities when available and prohibit devices that fail the attestation from accessing enterprise resources.
+      Deploy Compromised Device Detection Method"
+  category: "Defense Evasion"
+  tactic: "Hooking"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0030/"
+    - "https://attack.mitre.org/techniques/T1617/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "=="
+          value: "CYSTATUS_HOOKING_ENTRY_POINT_FAILED"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"

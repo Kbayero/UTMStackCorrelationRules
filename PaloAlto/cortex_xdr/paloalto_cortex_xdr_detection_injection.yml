@@ -1,0 +1,33 @@
+# https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/logs/cortex-xdr-log-notification-formats (june, 2022)
+# Rule version v1.0.0
+
+- name: "Probable threat injection detected by Palo Alto Cortex XDR"
+  severity: "High"
+  description: "An injection attack is malicious code injected into the network that obtains all the information from the database for the attacker. 
+                This type of attack is considered a major problem in web security and is listed as the top web application security risk in the OWASP Top 10. 
+                SQL Injection flaws are introduced when software developers create dynamic database queries that include user-supplied input."
+  solution: "You should stop writing dynamic queries and/or prevent user-provided input containing malicious SQL from affecting the logic of the executed query"
+  category: "Privilege Escalation"
+  tactic: "Process Injection"
+  reference:
+    - "https://attack.mitre.org/tactics/TA0004/"
+    - "https://attack.mitre.org/techniques/T1055/"
+  frequency: 60
+  cache: 
+    - allOf:
+        - field: "logx.paloalto_cortex_xdr.moduleStatusId"
+          operator: "=="
+          value: "CYSTATUS_THREAD_INJECTION"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.paloalto_cortex_xdr.suser"
+          alias: "SourceUser"
+        - field: "logx.paloalto_cortex_xdr.src_ip"
+          alias: "SourceIP"
+        - field: "logx.paloalto_cortex_xdr.src_port"
+          alias: "SourcePort"
+        - field: "logx.paloalto_cortex_xdr.dest_ip"
+          alias: "DestinationIP"
+        - field: "logx.paloalto_cortex_xdr.dest_port"
+          alias: "DestinationPort"
