@@ -1,11 +1,10 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "RDP Enabled via Registry"
+- name: "NullSessionPipe Registry Modification"
   severity: "Medium"
-  description: "Identifies registry write modifications to enable Remote Desktop Protocol (RDP) access. This could be indicative of
-                adversary lateral movement preparation."
-  solution: "Restrict logins to authorized non-administrator accounts, where possible.
-      Isolate the involved hosts to prevent further post-compromise behavior.
+  description: "Identifies NullSessionPipe registry modifications that specify which pipes can be accessed anonymously. This could
+                be indicative of adversary lateral movement preparation by making the added pipe available to everyone."
+  solution: "Isolate the involved hosts to prevent further post-compromise behavior.
       Review the privileges assigned to the involved users to ensure that the least privilege principle is being followed.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector."
   category: "Lateral Movement"
@@ -20,20 +19,8 @@
           operator: "in"
           value: "creation,change"
         - field: "logx.wineventlog.registry.path"
-          operator: "not regexp"
-          value: "(HKLM\\\\SYSTEM\\\\(.+)ControlSet(.+)\\\\Control\\\\Terminal Server\\\\fDenyTSConnections)"
-        - field: "logx.wineventlog.registry.data.strings"
-          operator: "in"
-          value: "0,0x00000000"
-        - field: "logx.wineventlog.process.name"
-          operator: "not contain"
-          value: "svchost.exe"
-        - field: "logx.wineventlog.user.domain"
-          operator: "not contain"
-          value: "NT AUTHORITY"
-        - field: "logx.wineventlog.process.executable"
-          operator: "not regexp"
-          value: "(C:\\\\Windows\\\\System32\\\\SystemPropertiesRemote.exe)"
+          operator: "regexp"
+          value: "(HKLM\\\\SYSTEM\\\\(.+)ControlSet(.+)\\\\services\\\\LanmanServer\\\\Parameters\\\\NullSessionPipes)"
       minCount: 1
       timeLapse: 60
       save:

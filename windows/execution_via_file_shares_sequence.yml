@@ -1,9 +1,9 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "Incoming Execution via PowerShell Remoting"
+- name: "Remote Execution via File Shares"
   severity: "Medium"
-  description: "Identifies remote execution via Windows PowerShell remoting. Windows PowerShell remoting allows a user to run any Windows
-                PowerShell command on one or more remote computers. This could be an indication of lateral movement."
+  description: "Identifies the execution of a file that was created by the virtual system process. This may indicate lateral movement
+                via network file shares."
   solution: "Isolate the involved host to prevent further post-compromise behavior.
       If the triage identified malware, search the environment for additional compromised hosts.
       Implement temporary network rules, procedures, and segmentation to contain the malware.
@@ -21,23 +21,22 @@
   frequency: 60
   cache: 
     - allOf:
-        - field: "logx.wineventlog.network.direction"
-          operator: "regexp"
-          value: "(incoming|ingress)"
-        - field: "logx.wineventlog.destination.port"
+        - field: "logx.wineventlog.event.type"
           operator: "in"
-          value: "5985,5986"
-        - field: "logx.wineventlog.network.protocol"
+          value: "creation,change"
+        - field: "logx.wineventlog.process.pid"
+          operator: "=="
+          value: "4"
+        - field: "logx.wineventlog.file.extension"
           operator: "contain"
-          value: "http"
-        - field: "logx.wineventlog.source.ip"
-          operator: "not in"
-          value: "127.0.0.1,::1"
+          value: "exe"
       minCount: 1
-      timeLapse: 30
+      timeLapse: 60
       save:
         - field: "logx.wineventlog.host.id"
           alias: "HostID"
+        - field: "logx.wineventlog.file.path"
+          alias: "FilePath"
     - allOf:
         - field: "logx.wineventlog.event.type"
           operator: "=="
@@ -45,12 +44,9 @@
         - field: "logx.wineventlog.host.id"
           operator: "=="
           value: "{{.HostID}}"
-        - field: "logx.wineventlog.process.parent.name"
-          operator: "contain"
-          value: "wsmprovhost.exe"
-        - field: "logx.wineventlog.process.name"
-          operator: "not contain"
-          value: "conhost.exe"
+        - field: "logx.wineventlog.process.executable"
+          operator: "=="
+          value: "{{.FilePath}}"
       minCount: 1
       timeLapse: 60
       save:
