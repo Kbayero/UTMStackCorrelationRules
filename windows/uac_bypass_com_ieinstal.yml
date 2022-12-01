@@ -1,9 +1,9 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "UAC Bypass Attempt via Privileged IFileOperation COM Interface"
-  severity: "High"
-  description: "Identifies attempts to bypass User Account Control (UAC) via DLL side-loading. Attackers may attempt to bypass UAC to
-                stealthily execute code with elevated permissions."
+- name: "UAC Bypass Attempt via Elevated COM Internet Explorer Add-On Installer"
+  severity: "Medium"
+  description: "Identifies User Account Control (UAC) bypass attempts by abusing an elevated COM Interface to launch a malicious
+                program. Attackers may attempt to bypass UAC to stealthily execute code with elevated permissions."
   solution: "Isolate the involved hosts to prevent further post-compromise behavior.
       Review the privileges assigned to the involved users to ensure that the least privilege principle is being followed.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector."
@@ -17,16 +17,16 @@
     - allOf:
         - field: "logx.wineventlog.event.type"
           operator: "=="
-          value: "change"
-        - field: "logx.wineventlog.file.name"
+          value: "start"
+        - field: "logx.wineventlog.process.executable"
           operator: "regexp"
-          value: "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)"
-        - field: "logx.wineventlog.process.name"
+          value: "(C:\\\\(.+)\\\\AppData\\\\(.+)\\\\Temp\\\\IDC(.+).tmp\\\\(.+).exe)"
+        - field: "logx.wineventlog.process.parent.name"
           operator: "contain"
-          value: "dllhost.exe"
-        - field: "logx.wineventlog.file.path"
-          operator: "not regexp"
-          value: "(C:\\\\Windows\\\\SoftwareDistribution\\\\|C:\\\\Windows\\\\WinSxS\\\\)"
+          value: "ieinstal.exe"
+        - field: "logx.wineventlog.process.parent.args"
+          operator: "regexp"
+          value: "(-Embedding)"
       minCount: 1
       timeLapse: 60
       save:

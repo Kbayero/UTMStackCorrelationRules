@@ -1,9 +1,11 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "Process Creation via Secondary Logon"
+- name: "Modification of the msPKIAccountCredentials"
   severity: "Medium"
-  description: "Identifies process creation with alternate credentials. Adversaries may create a new process with a different token to
-                escalate privileges and bypass access controls."
+  description: "Identify the modification of the msPKIAccountCredentials attribute in an Active Directory User Object. Attackers can abuse
+                the credentials roaming feature to overwrite an arbitrary file for privilege escalation. ms-PKI-AccountCredentials
+                contains binary large objects (BLOBs) of encrypted credential objects from the credential manager store, private keys,
+                certificates, and certificate requests."
   solution: "Isolate the involved host to prevent further post-compromise behavior.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector.
       If the malicious file was delivered via phishing:
@@ -11,48 +13,28 @@
       Remove emails from the sender from mailboxes. Consider improvements to the security awareness program.
       Run a full antimalware scan. This may reveal additional artifacts left in the system, persistence mechanisms, and malware components."
   category: "Privilege Escalation"
-  tactic: "Make and Impersonate Token"
+  tactic: "Exploitation for Privilege Escalation"
   reference:
     - "https://attack.mitre.org/tactics/TA0004/"
-    - "https://attack.mitre.org/techniques/T1134/003/"
+    - "https://attack.mitre.org/techniques/T1068/"
   frequency: 60
   cache: 
     - allOf:
         - field: "logx.wineventlog.event.action"
           operator: "contain"
-          value: "logged-in"
-        - field: "logx.wineventlog.event.outcome"
+          value: "Directory Service Changes"
+        - field: "logx.wineventlog.event.code"
+          operator: "=="
+          value: "5136"
+        - field: "logx.wineventlog.event_data.AttributeLDAPDisplayName"
           operator: "regexp"
-          value: "(success)"
-        - field: "logx.wineventlog.user.id"
-          operator: "regexp"
-          value: "(S-1-5-21-|S-1-12-1-)"
-        - field: "logx.wineventlog.process.name"
+          value: "(msPKIAccountCredentials)"
+        - field: "logx.wineventlog.event_data.OperationType"
           operator: "contain"
-          value: "svchost.exe"
-        - field: "logx.wineventlog.source.ip"
+          value: "%%14674"
+        - field: "logx.wineventlog.sevent_data.SubjectUserSid"
           operator: "=="
-          value: "::1"
-        - field: "logx.wineventlog.event_data.LogonProcessName"
-          operator: "contain"
-          value: "seclogo"
-      minCount: 1
-      timeLapse: 60
-      save:
-        - field: "logx.wineventlog.event_data.TargetLogonId"
-          alias: "TargetLogonID"
-        - field: "logx.wineventlog.host.id"
-          alias: "HostID"
-    - allOf:
-        - field: "logx.wineventlog.event.type"
-          operator: "=="
-          value: "start"
-        - field: "logx.wineventlog.event_data.TargetLogonId"
-          operator: "=="
-          value: "{{.TargetLogonID}}"
-        - field: "logx.wineventlog.host.id"
-          operator: "=="
-          value: "{{.HostID}}"
+          value: "S-1-5-18"
       minCount: 1
       timeLapse: 60
       save:

@@ -1,39 +1,38 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "UAC Bypass via Windows Firewall Snap-In Hijack"
+- name: "Disabling User Account Control via Registry Modification"
   severity: "Medium"
-  description: "Identifies attempts to bypass User Account Control (UAC) by hijacking the Microsoft Management Console (MMC) Windows
-                Firewall snap-in. Attackers bypass UAC to stealthily execute code with elevated permissions."
+  description: "User Account Control (UAC) can help mitigate the impact of malware on Windows hosts. With UAC, apps and tasks always run
+                in the security context of a non-administrator account, unless an administrator specifically authorizes
+                administrator-level access to the system. This rule identifies registry value changes to bypass User Access Control
+                (UAC) protection."
   solution: "Isolate the involved host to prevent further post-compromise behavior.
       If the triage identified malware, search the environment for additional compromised hosts.
       Implement temporary network rules, procedures, and segmentation to contain the malware.
       Stop suspicious processes. Immediately block the identified indicators of compromise (IoCs).
-      Inspect the affected systems for additional malware backdoors like reverse shells, reverse proxies, or droppers that
-      attackers could use to reinfect the system. Remove and block malicious artifacts identified during triage.
+      Inspect the affected systems for additional malware backdoors like reverse shells, reverse proxies, or droppers that attackers could use to reinfect the system.
+      Remove and block malicious artifacts identified during triage. Restore UAC settings to the desired state.
       Run a full antimalware scan. This may reveal additional artifacts left in the system, persistence mechanisms, and malware components.
       Investigate credential exposure on systems compromised or used by the attacker to ensure all compromised accounts are
       identified. Reset passwords for these accounts and other potentially compromised credentials, such as email, business systems, and web services.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector."
   category: "Privilege Escalation"
-  tactic: "Bypass User Account Control"
+  tactic: "Exploitation for Privilege Escalation"
   reference:
     - "https://attack.mitre.org/tactics/TA0004/"
-    - "https://attack.mitre.org/techniques/T1548/002/"
+    - "https://attack.mitre.org/techniques/T1068/"
   frequency: 60
   cache: 
     - allOf:
         - field: "logx.wineventlog.event.type"
           operator: "=="
-          value: "start"
-        - field: "logx.wineventlog.process.parent.name"
-          operator: "contain"
-          value: "mmc.exe"
-        - field: "logx.wineventlog.process.args"
-          operator: "not contain"
-          value: "WerFault.exe"
-        - field: "logx.wineventlog.process.parent.args"
-          operator: "contain"
-          value: "WF.msc"
+          value: "change"
+        - field: "logx.wineventlog.registry.path"
+          operator: "regexp"
+          value: "(HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\\\\EnableLUA|HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\\\\ConsentPromptBehaviorAdmin|HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\\\\PromptOnSecureDesktop)"
+        - field: "logx.wineventlog.registry.data.strings"
+          operator: "in"
+          value: "0,0x00000000"
       minCount: 1
       timeLapse: 60
       save:
