@@ -1,10 +1,9 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "Persistence via WMI Event Subscription"
+- name: "Local Scheduled Task Creation"
   severity: "Low"
-  description: "An adversary can use Windows Management Instrumentation (WMI) to install event filters, providers, consumers, and
-                bindings that execute code when a defined event occurs. Adversaries may use the capabilities of WMI to subscribe to an
-                event and execute arbitrary code when that event occurs, providing persistence on a system."
+  description: "Indicates the creation of a scheduled task. Adversaries can use these to establish persistence, move laterally, and/or
+                escalate privileges."
   solution: "Isolate the involved host to prevent further post-compromise behavior.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector.
       If the malicious file was delivered via phishing:
@@ -12,29 +11,54 @@
       Remove emails from the sender from mailboxes. Consider improvements to the security awareness program.
       Run a full antimalware scan. This may reveal additional artifacts left in the system, persistence mechanisms, and malware components."
   category: "Persistence"
-  tactic: "Windows Management Instrumentation Event Subscription"
+  tactic: "Scheduled Task"
   reference:
     - "https://attack.mitre.org/tactics/TA0003/"
-    - "https://attack.mitre.org/techniques/T1546/003/"
+    - "https://attack.mitre.org/techniques/T1053/005/"
   frequency: 60
   cache: 
+    - allOf:
+        - field: "logx.wineventlog.event.type"
+          operator: "!="
+          value: "end"
+      oneOf:
+        - field: "logx.wineventlog.process.name"
+          operator: "regexp"
+          value: "(cmd.exe|wscript.exe|rundll32.exe|regsvr32.exe|wmic.exe|mshta.exe|powershell.exe|pwsh.exe|powershell_ise.exe|WmiPrvSe.exe|wsmprovhost.exe|winrshost.exe)"
+        - field: "logx.wineventlog.process.pe.original_file_name"
+          operator: "regexp"
+          value: "(cmd.exe|wscript.exe|rundll32.exe|regsvr32.exe|wmic.exe|mshta.exe|powershell.exe|pwsh.exe|powershell_ise.exe|WmiPrvSe.exe|wsmprovhost.exe|winrshost.exe)"
+        - field: "logx.wineventlog.process.code_signature.trusted"
+          operator: "=="
+          value: "false"
+      minCount: 1
+      timeLapse: 60
+      save:
+        - field: "logx.wineventlog.process.entity_id"
+          alias: "ProcessID"
     - allOf:
         - field: "logx.wineventlog.event.type"
           operator: "=="
           value: "start"
         - field: "logx.wineventlog.process.args"
-          operator: "contain"
-          value: "create"
+          operator: "regexp"
+          value: "(/create|-create)"
         - field: "logx.wineventlog.process.args"
           operator: "regexp"
-          value: "(ActiveScriptEventConsumer|CommandLineEventConsumer)"
+          value: "(/RU|/SC|/TN|/TR|/F|/XML)"
+        - field: "logx.wineventlog.process.Ext.token.integrity_level_name"
+          operator: "not contain"
+          value: "System"
+        - field: "logx.wineventlog.event_data.IntegrityLevel"
+          operator: "not contain"
+          value: "System"
       oneOf:
         - field: "logx.wineventlog.process.name"
           operator: "contain"
-          value: "wmic.exe"
+          value: "schtasks.exe"
         - field: "logx.wineventlog.process.pe.original_file_name"
           operator: "contain"
-          value: "wmic.exe"
+          value: "schtasks.exe"
       minCount: 1
       timeLapse: 60
       save:

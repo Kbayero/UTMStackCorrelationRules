@@ -1,10 +1,9 @@
-# Rule version v1.0.1
+# Rule version v1.0.0
 
-- name: "Creation or Modification of a new GPO Scheduled Task or Service"
-  severity: "Low"
-  description: "Detects the creation or modification of a new Group Policy based scheduled task or service. These methods are used for
-                legitimate system administration, but can also be abused by an attacker with domain admin permissions to execute a
-                malicious payload remotely on all or a subset of the domain joined machines."
+- name: "KRBTGT Delegation Backdoor"
+  severity: "High"
+  description: "Identifies the modification of the msDS-AllowedToDelegateTo attribute to KRBTGT. Attackers can use this technique to
+                maintain persistence to the domain by having the ability to request tickets for the KRBTGT service."
   solution: "Isolate the involved host to prevent further post-compromise behavior.
       Determine the initial vector abused by the attacker and take action to prevent reinfection through the same vector.
       If the malicious file was delivered via phishing:
@@ -12,22 +11,22 @@
       Remove emails from the sender from mailboxes. Consider improvements to the security awareness program.
       Run a full antimalware scan. This may reveal additional artifacts left in the system, persistence mechanisms, and malware components."
   category: "Persistence"
-  tactic: "Scheduled Task"
+  tactic: "Account Manipulation"
   reference:
     - "https://attack.mitre.org/tactics/TA0003/"
-    - "https://attack.mitre.org/techniques/T1053/005/"
+    - "https://attack.mitre.org/techniques/T1098/"
   frequency: 60
   cache: 
     - allOf:
-        - field: "logx.wineventlog.event.type"
-          operator: "!="
-          value: "deletion"
-        - field: "logx.wineventlog.file.path"
+        - field: "logx.wineventlog.event.action"
+          operator: "contain"
+          value: "modified-user-account"
+        - field: "logx.wineventlog.event.code"
+          operator: "=="
+          value: "4738"
+        - field: "logx.wineventlog.event_data.AllowedToDelegateTo"
           operator: "regexp"
-          value: "(:\\\\Windows\\\\SYSVOL\\\\domain\\\\Policies\\\\(.+)\\\\MACHINE\\\\Preferences\\\\ScheduledTasks\\\\ScheduledTasks.xml|:\\\\Windows\\\\SYSVOL\\\\domain\\\\Policies\\\\(.+)\\\\MACHINE\\\\Preferences\\\\Preferences\\\\Services\\\\Services.xml)"
-        - field: "logx.wineventlog.process.name"
-          operator: "not contain"
-          value: "dfsrs.exe"
+          value: "(krbtgt)"
       minCount: 1
       timeLapse: 60
       save:
